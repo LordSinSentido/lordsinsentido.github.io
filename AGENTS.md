@@ -34,7 +34,7 @@ porfolio/
 │   │   ├── render.ts   # renderizado de secciones
 │   │   ├── cards.ts    # card compartida (Projects/Education/Certs)
 │   │   ├── badge.ts    # chip/badge compartido con tones (neutral/accent/sage/butter/clay/lavender)
-│   │   ├── text.ts     # helpers esc/initials/formatPeriod
+│   │   ├── text.ts     # helpers esc/initials/formatPeriod/withBase
 │   │   ├── motion.ts   # reveal-on-scroll (GSAP)
 │   │   ├── icons.ts
 │   │   └── types.ts    # modelos TypeScript (source of truth)
@@ -95,6 +95,10 @@ porfolio/
 - Fetch client-side con estado de loading; render de datos reales, no mockups finales.
 - Animaciones no deben bloquear el render inicial.
 - TypeScript estricto: los modelos en `types.ts` deben coincidir 1:1 con Firestore.
+- Imágenes del sitio en `public/images/`; en Firestore se guardan como rutas
+  root-relative (`/images/...`) y al renderizar se resuelven con `withBase()`
+  (`src/lib/text.ts`), que respeta `import.meta.env.BASE_URL` (base `/porfolio` o `/`).
+  NO concatenar `BASE_URL` a mano: usar siempre `withBase()`.
 - Desplegar solo cuando `npm run build` y el lint pasen.
 
 ## Fases de ejecución

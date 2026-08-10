@@ -47,7 +47,7 @@
 
 <script>
   import { getPortfolio, renderHeaderContact } from '../../lib/render';
-  import { initials } from '../../lib/text';
+  import { initials, withBase } from '../../lib/text';
   import { badge } from '../../lib/badge';
 
   getPortfolio()
@@ -67,7 +67,7 @@
       if (contact) contact.innerHTML = renderHeaderContact(profile);
       if (photo) {
         if (profile.photoUrl) {
-          photo.innerHTML = `<img src="${profile.photoUrl}" alt="${profile.name}" class="h-24 w-24 rounded-full border-4 border-surface object-cover" />`;
+          photo.innerHTML = `<img src="${withBase(profile.photoUrl)}" alt="${profile.name}" class="h-24 w-24 rounded-full border-4 border-surface object-cover" />`;
         } else {
           photo.textContent = initials(profile.name);
         }

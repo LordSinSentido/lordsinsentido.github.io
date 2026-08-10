@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { withBase } from '../lib/text';
 
 interface Props {
   title?: string;
@@ -11,7 +12,7 @@ const {
   description = 'Portfolio of Miguel Sosa: software engineer building fast, accessible web experiences.',
 } = Astro.props;
 
-const favicon = `${import.meta.env.BASE_URL}favicon.svg`;
+const favicon = withBase('favicon.svg');
 ---
 
 <!doctype html>

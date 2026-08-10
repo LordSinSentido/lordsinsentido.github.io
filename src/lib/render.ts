@@ -10,7 +10,7 @@ import type {
 import loadPortfolio from "./data";
 import { icon } from "./icons";
 import { initReveals } from "./motion";
-import { esc, formatPeriod } from "./text";
+import { esc, formatPeriod, withBase } from "./text";
 import { badge } from "./badge";
 import { renderCard } from "./cards";
 
@@ -116,7 +116,7 @@ export function renderExperience(experience: Experience[]): string {
           <div class="flex items-stretch gap-5">
             ${
               job.logoUrl
-                ? `<img src="${esc(job.logoUrl)}" alt="${esc(job.company)} logo" class="h-16 w-16 shrink-0 self-start overflow-hidden rounded-lg border border-line object-cover" loading="lazy" />`
+                ? `<img src="${esc(withBase(job.logoUrl))}" alt="${esc(job.company)} logo" class="h-16 w-16 shrink-0 self-start overflow-hidden rounded-lg border border-line object-cover" loading="lazy" />`
                 : `<span class="flex h-16 w-16 shrink-0 self-start items-center justify-center rounded-lg border border-line bg-surface p-1.5 text-accent">${icon("briefcase", 24)}</span>`
             }
             <div class="flex-1">
@@ -207,7 +207,7 @@ export function renderEducation(
       subtitle: cert.issuer,
       meta: cert.year,
       image: {
-        src: cert.imageUrl,
+        src: cert.imageUrl ? withBase(cert.imageUrl) : null,
         alt: `${cert.name} badge`,
         fallbackIcon: "award",
       },
