@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/sections/Hero.astro';
+import Skills from '../components/sections/Skills.astro';
+import Experience from '../components/sections/Experience.astro';
+import Projects from '../components/sections/Projects.astro';
+import Education from '../components/sections/Education.astro';
+import Contact from '../components/sections/Contact.astro';
+
+const { title = 'Miguel Sosa — Software Engineer' } = Astro.props;
+---
+
+<Layout title={title}>
+  <Nav />
+  <main>
+    <Hero />
+    <Skills />
+    <Experience />
+    <Projects />
+    <Education />
+    <Contact />
+  </main>
+</Layout>
+
+<script>
+  import { initMotion } from '../lib/motion';
+
+  initMotion();
+
+  const progress = document.getElementById('scroll-progress');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (progress && !reduceMotion) {
+    const updateProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+    };
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+  }
+</script>

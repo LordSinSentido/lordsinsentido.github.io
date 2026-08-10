@@ -1,0 +1,88 @@
+<section id="top" class="scroll-mt-16 pb-20 pt-28">
+  <div class="mx-auto w-full max-w-4xl px-4 sm:px-6">
+    <div class="flex flex-col-reverse gap-10 sm:flex-row sm:items-start">
+      <div class="min-w-0 flex-1">
+        <p data-render="availability" class="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-muted">
+          <span class="block h-2 w-2 rounded-full bg-surface-2"></span>
+          <span class="block h-3 w-36 rounded bg-surface-2"></span>
+        </p>
+
+        <div class="flex flex-col-reverse items-center gap-6 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
+          <div class="min-w-0">
+            <h1
+              data-hero-stagger
+              data-render="resume-name"
+              class="font-display text-4xl font-medium tracking-tight text-ink sm:text-5xl"
+            >
+              <span class="mb-2 block h-11 w-80 rounded-xl bg-surface-2 sm:h-14 sm:w-96"></span>
+            </h1>
+
+            <p data-hero-stagger data-render="resume-role" class="mt-3 text-lg font-medium text-accent">
+              <span class="block h-5 w-56 rounded bg-surface-2"></span>
+            </p>
+          </div>
+
+          <div data-hero-stagger data-render="resume-photo" class="shrink-0">
+            <div class="relative">
+              <div class="absolute -inset-3 rounded-full bg-gradient-to-tr from-accent-soft via-butter to-lavender opacity-50 blur-2xl"></div>
+              <span data-photo-slot class="relative flex h-24 w-24 items-center justify-center rounded-full font-display text-3xl font-semibold text-accent">
+                <span class="block h-16 w-16 rounded-full bg-surface-2"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p data-hero-stagger data-render="resume-bio" class="mt-5 max-w-2xl leading-relaxed text-muted">
+          <span class="block h-4 w-full rounded bg-surface-2"></span>
+          <span class="mt-2 block h-4 w-3/4 rounded bg-surface-2"></span>
+        </p>
+
+        <div data-hero-stagger data-render="resume-contact" class="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+          <span class="inline-flex h-4 w-56 rounded bg-surface-2"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { getPortfolio, renderHeaderContact } from '../../lib/render';
+  import { initials } from '../../lib/text';
+  import { badge } from '../../lib/badge';
+
+  getPortfolio()
+    .then(({ profile, experience }) => {
+      if (!profile) return;
+
+      const name = document.querySelector('[data-render="resume-name"]');
+      const role = document.querySelector('[data-render="resume-role"]');
+      const bio = document.querySelector('[data-render="resume-bio"]');
+      const contact = document.querySelector('[data-render="resume-contact"]');
+      const photo = document.querySelector('[data-photo-slot]');
+      const availability = document.querySelector('[data-render="availability"]');
+
+      if (name) name.textContent = profile.name;
+      if (role) role.textContent = profile.role;
+      if (bio) bio.textContent = profile.bio;
+      if (contact) contact.innerHTML = renderHeaderContact(profile);
+      if (photo) {
+        if (profile.photoUrl) {
+          photo.innerHTML = `<img src="${profile.photoUrl}" alt="${profile.name}" class="h-24 w-24 rounded-full border-4 border-surface object-cover" />`;
+        } else {
+          photo.textContent = initials(profile.name);
+        }
+      }
+
+      if (availability) {
+        const available = !experience.some((job) => job.current);
+        availability.className = '';
+        availability.innerHTML = badge({
+          label: available ? 'Available for work' : 'Not available for work',
+          tone: available ? 'sage' : 'clay',
+          dot: true,
+          class: 'mb-5',
+        });
+      }
+    })
+    .catch((err) => console.error('Failed to load profile:', err));
+</script>

@@ -1,0 +1,302 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const home = import.meta.env.BASE_URL;
+const title = 'Admin — Miguel Sosa';
+---
+
+<Layout title={title}>
+  <header class="sticky top-0 z-40 border-b border-line/60 bg-base/85 backdrop-blur-md">
+    <div class="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6">
+      <a href={home} class="font-display text-xl font-semibold italic text-ink">
+        admin<span class="text-accent">.</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href={home} class="text-sm font-medium text-muted transition hover:text-ink">
+          ← Back to site
+        </a>
+        <button
+          id="sign-out"
+          type="button"
+          class="hidden rounded-lg border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink transition hover:border-accent/40 hover:text-accent"
+        >
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-4 pb-20 pt-10 sm:px-6">
+    <div id="view">
+      <p class="py-20 text-center text-sm text-muted">Loading…</p>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import type { Auth, User } from 'firebase/auth';
+  import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+  import { auth } from '../lib/firebase';
+  import {
+    COLLECTIONS,
+    BTN_PRIMARY,
+    BTN_GHOST,
+    BTN_DANGER,
+    type AdminDoc,
+    type CollectionDef,
+    describe,
+    fetchCollection,
+    formHtml,
+    parseForm,
+    removeDoc,
+    saveDoc,
+  } from '../lib/admin';
+  import { esc } from '../lib/text';
+
+  const view = document.getElementById('view')!;
+  const signOutBtn = document.getElementById('sign-out') as HTMLButtonElement;
+
+  let docsCache: Record<string, AdminDoc[]> = {};
+  let editorContext: { col: CollectionDef; id: string | null } | null = null;
+
+  if (!auth) {
+    view.innerHTML =
+      '<p class="py-20 text-center text-sm text-muted">Firebase is not configured.</p>';
+  } else {
+    const activeAuth = auth;
+    onAuthStateChanged(activeAuth, (user) => {
+      if (user) {
+        renderDashboard(user);
+      } else {
+        renderLogin(activeAuth);
+      }
+    });
+  }
+
+  signOutBtn.addEventListener('click', () => {
+    if (!auth) return;
+    signOut(auth).catch((err) => console.error('Sign out failed:', err));
+  });
+
+  // ---- Login view -----------------------------------------------------------
+
+  function renderLogin(activeAuth: Auth): void {
+    signOutBtn.classList.add('hidden');
+    view.innerHTML = `
+      <div class="mx-auto max-w-md">
+        <h1 class="font-display text-2xl font-semibold text-ink">Sign in</h1>
+        <p class="mt-2 text-sm text-muted">Only authorized accounts can edit this portfolio.</p>
+        <form id="login-form" class="mt-8 space-y-4 rounded-2xl border border-line bg-surface p-6 shadow-soft">
+          <div>
+            <label for="email" class="text-sm font-medium text-ink">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="email" class="mt-1 w-full rounded-xl border border-line bg-base px-3 py-2 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30" />
+          </div>
+          <div>
+            <label for="password" class="text-sm font-medium text-ink">Password</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password" class="mt-1 w-full rounded-xl border border-line bg-base px-3 py-2 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30" />
+          </div>
+          <p id="login-error" class="hidden rounded-lg border border-[#b3261e]/30 bg-[#b3261e]/5 px-3 py-2 text-sm text-[#b3261e]"></p>
+          <button type="submit" class="w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60">
+            Sign in
+          </button>
+        </form>
+      </div>`;
+
+    const form = view.querySelector<HTMLFormElement>('#login-form')!;
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const fd = new FormData(form);
+      const email = String(fd.get('email') ?? '').trim();
+      const password = String(fd.get('password') ?? '');
+      const errorBox = view.querySelector('#login-error') as HTMLParagraphElement;
+      const submitBtn = form.querySelector<HTMLButtonElement>('[type="submit"]')!;
+
+      errorBox.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in…';
+      try {
+        await signInWithEmailAndPassword(activeAuth, email, password);
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign in';
+        errorBox.textContent = authErrorMessage(err);
+        errorBox.classList.remove('hidden');
+      }
+    });
+  }
+
+  function authErrorMessage(err: unknown): string {
+    const code = (err as { code?: string } | null)?.code ?? '';
+    switch (code) {
+      case 'auth/invalid-credential':
+      case 'auth/wrong-password':
+      case 'auth/user-not-found':
+      case 'auth/invalid-email':
+        return 'Invalid email or password.';
+      case 'auth/user-disabled':
+        return 'This account has been disabled.';
+      case 'auth/too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      default:
+        return 'Sign-in failed. Please try again.';
+    }
+  }
+
+  // ---- Dashboard view ---------------------------------------------------------
+
+  function renderDashboard(user: User): void {
+    signOutBtn.classList.remove('hidden');
+    view.innerHTML = `
+      <h1 class="font-display text-2xl font-semibold text-ink">Content manager</h1>
+      <p class="mt-2 text-sm text-muted">
+        Signed in as ${esc(user.email ?? 'unknown')}. Changes are saved to Firestore and shown on the home page.
+      </p>
+      <div id="collections" class="mt-8 space-y-8"></div>
+      <dialog id="editor" class="m-auto max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-line bg-surface p-6 text-ink shadow-lift backdrop:bg-ink/50">
+        <h3 id="editor-title" class="font-display text-lg font-semibold text-ink"></h3>
+        <div id="editor-body" class="mt-4"></div>
+      </dialog>`;
+
+    const container = view.querySelector<HTMLElement>('#collections')!;
+    const dialog = view.querySelector<HTMLDialogElement>('#editor')!;
+    const dialogTitle = view.querySelector<HTMLHeadingElement>('#editor-title')!;
+    const dialogBody = view.querySelector<HTMLElement>('#editor-body')!;
+
+    container.addEventListener('click', async (event) => {
+      const target = (event.target as HTMLElement).closest<HTMLElement>(
+        '[data-add], [data-edit], [data-delete]',
+      );
+      if (!target) return;
+      const colName = target.dataset.add ?? target.dataset.edit ?? target.dataset.delete;
+      const col = COLLECTIONS.find((c) => c.name === colName);
+      if (!col) return;
+      const id = target.dataset.id ?? null;
+
+      if (target.hasAttribute('data-add')) {
+        openEditor(col, null);
+      } else if (target.hasAttribute('data-edit')) {
+        const existing = docsCache[col.name]?.find((d) => d.id === id)?.data;
+        openEditor(col, id, existing);
+      } else if (target.hasAttribute('data-delete')) {
+        const existing = docsCache[col.name]?.find((d) => d.id === id)?.data ?? {};
+        const ok = window.confirm(
+          `Delete "${describe(col, existing)}"? This cannot be undone.`,
+        );
+        if (!ok) return;
+        try {
+          await removeDoc(col, id!);
+          await loadAll();
+        } catch (err) {
+          window.alert(`Delete failed: ${(err as Error).message}`);
+        }
+      }
+    });
+
+    dialogBody.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('[data-close]')) {
+        dialog.close();
+      }
+    });
+
+    dialogBody.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const ctx = editorContext;
+      if (!ctx) return;
+      const form = event.target as HTMLFormElement;
+      const submitBtn = form.querySelector<HTMLButtonElement>('[type="submit"]');
+      const data = parseForm(ctx.col, form);
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving…';
+      }
+      try {
+        await saveDoc(ctx.col, ctx.id, data);
+        dialog.close();
+        await loadAll();
+      } catch (err) {
+        window.alert(`Save failed: ${(err as Error).message}`);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Save';
+        }
+      }
+    });
+
+    loadAll();
+
+    function openEditor(
+      col: CollectionDef,
+      id: string | null,
+      data?: Record<string, unknown>,
+    ): void {
+      editorContext = { col, id };
+      dialogTitle.textContent = id
+        ? `Edit ${col.label.toLowerCase()}`
+        : `Add ${col.label.toLowerCase()}`;
+      dialogBody.innerHTML = formHtml(col, data ?? {});
+      dialog.showModal();
+    }
+  }
+
+  async function loadAll(): Promise<void> {
+    const container = view.querySelector<HTMLElement>('#collections');
+    if (!container) return;
+    container.innerHTML =
+      '<p class="py-10 text-center text-sm text-muted">Loading collections…</p>';
+
+    const results = await Promise.all(
+      COLLECTIONS.map(async (col) => ({ col, docs: await fetchCollection(col) })),
+    );
+    docsCache = {};
+    for (const { col, docs } of results) docsCache[col.name] = docs;
+
+    container.innerHTML = results
+      .map(({ col, docs }) => renderSection(col, docs))
+      .join('');
+  }
+
+  function renderSection(col: CollectionDef, docs: AdminDoc[]): string {
+    if (col.single) {
+      const data = docs[0]?.data;
+      return `
+        <section class="rounded-2xl border border-line bg-surface p-6 shadow-soft">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 class="font-display text-lg font-semibold text-ink">${col.label}</h2>
+              <p class="mt-0.5 text-sm text-muted">Single document shown on the home page.</p>
+            </div>
+            <button type="button" data-edit="${col.name}" data-id="${esc(docs[0]?.id ?? 'main')}" class="${BTN_PRIMARY}">
+              ${data ? 'Edit' : 'Create'}
+            </button>
+          </div>
+        </section>`;
+    }
+
+    const items = docs
+      .map(
+        (doc) => `
+        <li class="flex items-center justify-between gap-4 border-t border-line py-3">
+          <span class="truncate text-sm font-medium text-ink">${esc(describe(col, doc.data))}</span>
+          <span class="flex shrink-0 items-center gap-2">
+            <button type="button" data-edit="${col.name}" data-id="${esc(doc.id)}" class="${BTN_GHOST}">Edit</button>
+            <button type="button" data-delete="${col.name}" data-id="${esc(doc.id)}" class="${BTN_DANGER}">Delete</button>
+          </span>
+        </li>`,
+      )
+      .join('');
+
+    return `
+      <section class="rounded-2xl border border-line bg-surface p-6 shadow-soft">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h2 class="font-display text-lg font-semibold text-ink">${col.label}</h2>
+          <button type="button" data-add="${col.name}" class="${BTN_PRIMARY}">
+            Add ${col.label.toLowerCase()}
+          </button>
+        </div>
+        ${items
+          ? `<ul class="mt-2">${items}</ul>`
+          : '<p class="mt-4 border-t border-line pt-4 text-sm text-muted">No items yet.</p>'}
+      </section>`;
+  }
+</script>
