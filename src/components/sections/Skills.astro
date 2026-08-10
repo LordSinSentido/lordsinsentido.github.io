@@ -1,0 +1,30 @@
+---
+import SectionTitle from '../ui/SectionTitle.astro';
+---
+
+<section id="skills" class="scroll-mt-16 py-20">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6">
+    <SectionTitle
+      eyebrow="Skills"
+      title="Technologies & tools"
+      subtitle="Core areas of expertise and the tools I use daily."
+    />
+
+    <div data-render="skills-grid">
+      <div class="flex flex-wrap gap-3">
+        <span class="h-8 w-24 rounded-full bg-surface-2"></span>
+        <span class="h-8 w-32 rounded-full bg-surface-2"></span>
+        <span class="h-8 w-28 rounded-full bg-surface-2"></span>
+        <span class="h-8 w-20 rounded-full bg-surface-2"></span>
+        <span class="h-8 w-36 rounded-full bg-surface-2"></span>
+        <span class="h-8 w-24 rounded-full bg-surface-2"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { hydrate, renderSkills } from '../../lib/render';
+
+  hydrate('[data-render="skills-grid"]', ({ skills }) => renderSkills(skills));
+</script>

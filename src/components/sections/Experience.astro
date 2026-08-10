@@ -1,0 +1,44 @@
+---
+import SectionTitle from '../ui/SectionTitle.astro';
+---
+
+<section id="experience" class="scroll-mt-16 py-20">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6">
+    <SectionTitle
+      eyebrow="Experience"
+      title="Professional experience"
+      subtitle="A selection of roles and the impact I had in each."
+    />
+
+    <div data-render="experience-list">
+      <div class="mt-2">
+        <div class="flex gap-4">
+          <span class="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-accent"></span>
+          <div class="flex-1 space-y-3 border-b border-line pb-8">
+            <span class="block h-5 w-40 rounded bg-surface-2"></span>
+            <span class="block h-4 w-56 rounded bg-surface-2"></span>
+            <span class="block h-4 w-full rounded bg-surface-2"></span>
+            <span class="block h-4 w-2/3 rounded bg-surface-2"></span>
+          </div>
+        </div>
+        <div class="mt-8 flex gap-4">
+          <span class="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-accent-soft"></span>
+          <div class="flex-1 space-y-3">
+            <span class="block h-5 w-40 rounded bg-surface-2"></span>
+            <span class="block h-4 w-56 rounded bg-surface-2"></span>
+            <span class="block h-4 w-full rounded bg-surface-2"></span>
+            <span class="block h-4 w-1/2 rounded bg-surface-2"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { hydrate, renderExperience } from '../../lib/render';
+
+  hydrate('[data-render="experience-list"]', ({ experience }) =>
+    renderExperience(experience),
+  );
+</script>

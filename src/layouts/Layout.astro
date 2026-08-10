@@ -1,0 +1,54 @@
+---
+import '../styles/global.css';
+import { withBase } from '../lib/text';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Miguel Sosa — Software Engineer',
+  description = 'Portfolio of Miguel Sosa: software engineer building fast, accessible web experiences.',
+} = Astro.props;
+
+const favicon = withBase('favicon.svg');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (function () {
+        var stored = localStorage.getItem('theme');
+        var dark = stored
+          ? stored === 'dark'
+          : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+      })();
+    </script>
+  </head>
+  <body class="bg-base font-sans text-ink antialiased">
+    <div
+      id="scroll-progress"
+      aria-hidden="true"
+      class="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left scale-x-0 bg-gradient-to-r from-accent-soft via-butter to-lavender"
+    ></div>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,56 @@
+---
+import SectionTitle from '../ui/SectionTitle.astro';
+---
+
+<section id="projects" class="scroll-mt-16 py-20">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6">
+    <SectionTitle
+      eyebrow="Projects"
+      title="Selected projects"
+      subtitle="A selection of work I'm proud of. More on GitHub."
+    />
+
+    <div data-render="projects-grid">
+      <div class="grid gap-x-8 gap-y-14 md:grid-cols-2">
+        <div class="space-y-5">
+          <span class="block aspect-[16/10] w-full rounded-2xl bg-surface-2"></span>
+          <span class="block h-5 w-40 rounded bg-surface-2"></span>
+          <span class="block h-4 w-full rounded bg-surface-2"></span>
+          <span class="block h-4 w-2/3 rounded bg-surface-2"></span>
+        </div>
+        <div class="hidden space-y-5 md:block">
+          <span class="block aspect-[16/10] w-full rounded-2xl bg-surface-2"></span>
+          <span class="block h-5 w-40 rounded bg-surface-2"></span>
+          <span class="block h-4 w-full rounded bg-surface-2"></span>
+          <span class="block h-4 w-2/3 rounded bg-surface-2"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16" data-reveal>
+      <a
+        data-render="projects-link"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-ink transition hover:border-accent/40 hover:text-accent"
+      >
+        View all projects on GitHub
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { hydrate, renderProjects, getPortfolio } from '../../lib/render';
+
+  hydrate('[data-render="projects-grid"]', ({ projects }) => renderProjects(projects));
+
+  getPortfolio()
+    .then(({ profile }) => {
+      const link = document.querySelector<HTMLAnchorElement>('[data-render="projects-link"]');
+      if (link && profile?.social.github) link.href = profile.social.github;
+    })
+    .catch((err) => console.error('Failed to load profile:', err));
+</script>

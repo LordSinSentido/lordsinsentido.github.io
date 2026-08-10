@@ -1,41 +1,29 @@
 {
-  "name": "lordsinsentido.github.io",
-  "private": true,
-  "version": "0.0.0",
+  "name": "porfolio",
   "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "seed": "node seed/seed.mjs",
+    "deploy:rules": "firebase deploy --only firestore:rules",
+    "astro": "astro"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
-    "@tailwindcss/vite": "^4.1.18",
-    "firebase": "^12.7.0",
-    "lucide-react": "^0.561.0",
-    "motion": "^12.23.26",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-head": "^3.4.2",
-    "react-hook-form": "^7.71.0",
-    "react-router-dom": "^7.11.0",
-    "tailwindcss": "^4.1.18",
-    "zod": "^4.2.1"
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.0",
+    "firebase": "^12.17.1",
+    "gsap": "^3.15.0",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4",
-    "vite-tsconfig-paths": "^6.0.1"
+    "@astrojs/check": "^0.9.10",
+    "firebase-admin": "^14.2.0",
+    "firebase-tools": "^15.26.0",
+    "typescript": "^6.0.3"
   }
 }
