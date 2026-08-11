@@ -14,6 +14,25 @@ export interface CardImage {
   fallbackIcon?: string;
 }
 
+export interface LogoOptions {
+  src: string | null;
+  alt: string;
+  fallbackIcon?: string;
+  class?: string;
+}
+
+export function renderLogo(options: LogoOptions): string {
+  const { src, alt, fallbackIcon = "briefcase", class: extraClass = "" } = options;
+
+  const baseClass = "h-16 w-16 shrink-0 self-start overflow-hidden rounded-lg border border-line object-cover";
+  const fallbackClass =
+    "flex h-16 w-16 shrink-0 self-start items-center justify-center rounded-lg border border-line bg-surface p-1.5 text-accent";
+
+  return src
+    ? `<img src="${esc(src)}" alt="${esc(alt)}" class="${baseClass} ${extraClass}" loading="lazy" />`
+    : `<span class="${fallbackClass} ${extraClass}">${icon(fallbackIcon, 24)}</span>`;
+}
+
 export interface CardOptions {
   eyebrowIcon: string;
   eyebrowLabel: string;
@@ -62,9 +81,11 @@ export function renderCard(options: CardOptions): string {
     </div>`;
 
   const imageHtml = image
-    ? image.src
-      ? `<img src="${esc(image.src)}" alt="${esc(image.alt)}" class="h-16 w-16 shrink-0 self-start overflow-hidden rounded-lg border border-line object-cover" loading="lazy" />`
-      : `<span class="flex h-16 w-16 shrink-0 self-start items-center justify-center rounded-lg border border-line bg-surface p-1.5 text-accent">${icon(image.fallbackIcon ?? eyebrowIcon, 24)}</span>`
+    ? renderLogo({
+        src: image.src,
+        alt: image.alt,
+        fallbackIcon: image.fallbackIcon ?? eyebrowIcon,
+      })
     : "";
 
   return `

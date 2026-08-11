@@ -12,7 +12,7 @@ import { icon } from "./icons";
 import { initReveals } from "./motion";
 import { esc, formatPeriod, withBase } from "./text";
 import { badge } from "./badge";
-import { renderCard } from "./cards";
+import { renderCard, renderLogo } from "./cards";
 
 let cached: Promise<PortfolioData> | null = null;
 
@@ -106,20 +106,22 @@ export function renderExperience(experience: Experience[]): string {
   if (experience.length === 0)
     return '<p class="py-10 text-center text-sm text-muted">No experience yet.</p>';
 
+  const marker = (job: Experience): string =>
+    `<span class="absolute -left-8 top-1.5">${renderLogo({
+      src: job.logoUrl ? withBase(job.logoUrl) : null,
+      alt: `${job.company} logo`,
+      fallbackIcon: "briefcase",
+      class: "bg-base",
+    })}</span>`;
+
   return `
-    <ol class="mt-2">
+    <ol class="mt-2 ml-6">
       ${experience
         .map(
           (job) => `
-        <li data-reveal class="relative border-l border-line pb-10 pl-6 last:pb-0">
-          <span class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full ${job.current ? "bg-sage-deep" : "bg-accent"} ring-4 ring-base"></span>
-          <div class="flex items-stretch gap-5">
-            ${
-              job.logoUrl
-                ? `<img src="${esc(withBase(job.logoUrl))}" alt="${esc(job.company)} logo" class="h-16 w-16 shrink-0 self-start overflow-hidden rounded-lg border border-line object-cover" loading="lazy" />`
-                : `<span class="flex h-16 w-16 shrink-0 self-start items-center justify-center rounded-lg border border-line bg-surface p-1.5 text-accent">${icon("briefcase", 24)}</span>`
-            }
-            <div class="flex-1">
+        <li data-reveal class="relative border-l border-line pb-10 pl-12 last:pb-0">
+          ${marker(job)}
+          <div class="flex-1">
               <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <h3 class="font-display text-lg font-semibold text-ink">${esc(job.company)}</h3>
                 ${job.current ? badge({ label: "Current", tone: "sage", size: "sm" }) : ""}
@@ -146,8 +148,7 @@ export function renderExperience(experience: Experience[]): string {
                       .join("")}</div>`
                   : ""
               }
-            </div>
-          </div>
+        </div>
         </li>`,
         )
         .join("")}
