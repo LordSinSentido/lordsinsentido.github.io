@@ -197,6 +197,11 @@ export function renderEducation(
       subtitle: entry.degree,
       meta: formatPeriod(entry.periodStart, entry.periodEnd),
       description: entry.description,
+      image: {
+        src: entry.imageUrl ? withBase(entry.imageUrl) : null,
+        alt: `${entry.institution} logo`,
+        fallbackIcon: "graduation-cap",
+      },
     }),
   );
 

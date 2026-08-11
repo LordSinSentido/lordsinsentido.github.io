@@ -113,6 +113,7 @@ const seedData = {
   education: {
     edu1: {
       institution: 'University Name',
+      imageUrl: null,
       degree: "Bachelor's in Computer Science",
       periodStart: '2016-08-01',
       periodEnd: '2020-05-01',

@@ -111,6 +111,7 @@ export const COLLECTIONS: CollectionDef[] = [
     itemLabel: 'degree',
     fields: [
       { type: 'text', key: 'institution', label: 'Institution' },
+      { type: 'url', key: 'imageUrl', label: 'Institution logo URL (optional)' },
       { type: 'text', key: 'degree', label: 'Degree' },
       { type: 'date', key: 'periodStart', label: 'Start date' },
       { type: 'date', key: 'periodEnd', label: 'End date' },
