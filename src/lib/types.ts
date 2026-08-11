@@ -10,6 +10,7 @@ export interface Profile {
   tagline: string;
   bio: string;
   photoUrl: string;
+  heroImageUrl: string;
   location: string;
   email: string;
   resumeUrl: string;

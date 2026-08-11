@@ -76,8 +76,8 @@ porfolio/
 7. Contact — email + redes
 
 ## Modelos Firestore
-- **profile** (doc único `main`): `{ name, role, tagline, bio, photoUrl, location,
-  email, resumeUrl, social: { github, linkedin, twitter } }`
+- **profile** (doc único `main`): `{ name, role, tagline, bio, photoUrl, heroImageUrl,
+  location, email, resumeUrl, social: { github, linkedin, twitter } }`
 - **skills** (doc por categoría): `{ category, order, items: [{ name, icon }] }`
 - **experience**: `{ company, logoUrl|null, role, location, periodStart, periodEnd|null,
   current, description, highlights[], tech[], order }`

@@ -21,6 +21,7 @@ const seedData = {
       tagline: 'I build fast, accessible web experiences.',
       bio: 'Write your bio here: who you are, what you do, and what drives you.',
       photoUrl: '/images/profile.jpeg',
+      heroImageUrl: null,
       location: 'City, Country',
       email: 'you@example.com',
       resumeUrl: '',

@@ -1,5 +1,15 @@
-<section id="top" class="scroll-mt-16 pb-20 pt-28">
-  <div class="mx-auto w-full max-w-4xl px-4 sm:px-6">
+<section id="top" class="relative scroll-mt-16 overflow-hidden pb-20 pt-28">
+  <div
+    data-hero-bg
+    class="pointer-events-none absolute inset-0 z-0 bg-cover bg-center"
+    role="presentation"
+  ></div>
+  <div
+    data-hero-overlay
+    class="pointer-events-none absolute inset-0 z-0 bg-base/90 opacity-0 transition-opacity duration-500"
+    role="presentation"
+  ></div>
+  <div class="relative z-10 mx-auto w-full max-w-4xl px-4 sm:px-6">
     <div class="flex flex-col-reverse gap-10 sm:flex-row sm:items-start">
       <div class="min-w-0 flex-1">
         <p data-render="availability" class="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-muted">
@@ -60,6 +70,13 @@
       const contact = document.querySelector('[data-render="resume-contact"]');
       const photo = document.querySelector('[data-photo-slot]');
       const availability = document.querySelector('[data-render="availability"]');
+      const heroBg = document.querySelector('[data-hero-bg]');
+      const heroOverlay = document.querySelector('[data-hero-overlay]');
+
+      if (heroBg && profile.heroImageUrl) {
+        heroBg.style.backgroundImage = `url('${withBase(profile.heroImageUrl)}')`;
+        if (heroOverlay) heroOverlay.style.opacity = '1';
+      }
 
       if (name) name.textContent = profile.name;
       if (role) role.textContent = profile.role;

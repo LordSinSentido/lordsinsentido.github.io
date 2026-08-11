@@ -41,6 +41,7 @@ export const COLLECTIONS: CollectionDef[] = [
       { type: 'textarea', key: 'tagline', label: 'Tagline' },
       { type: 'textarea', key: 'bio', label: 'Bio' },
       { type: 'url', key: 'photoUrl', label: 'Photo URL' },
+      { type: 'url', key: 'heroImageUrl', label: 'Hero background image URL (optional)' },
       { type: 'text', key: 'location', label: 'Location' },
       { type: 'email', key: 'email', label: 'Email' },
       { type: 'url', key: 'resumeUrl', label: 'Résumé URL' },
@@ -246,14 +247,16 @@ function renderField(field: FieldDef, data: Record<string, unknown> | undefined,
           <textarea name="${name}" rows="4" class="${INPUT}">${esc(raw)}</textarea>
         </div>`;
     }
-    case 'object':
+    case 'object': {
+      const nested = (data?.[field.key] as Record<string, unknown> | undefined) ?? {};
       return `
         <fieldset class="border-t border-line pt-4">
           <legend class="${LABEL}">${esc(field.label)}</legend>
           <div class="mt-2 space-y-3">
-            ${field.fields.map((f) => renderField(f, data, name)).join('')}
+            ${field.fields.map((f) => renderField(f, nested, name)).join('')}
           </div>
         </fieldset>`;
+    }
     default:
       return `
         <div>
