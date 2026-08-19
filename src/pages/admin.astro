@@ -52,6 +52,7 @@ const title = 'Admin — Miguel Sosa';
     saveDoc,
   } from '../lib/admin';
   import { esc } from '../lib/text';
+  import { clearPortfolioCache } from '../lib/data';
 
   const view = document.getElementById('view')!;
   const signOutBtn = document.getElementById('sign-out') as HTMLButtonElement;
@@ -185,7 +186,8 @@ const title = 'Admin — Miguel Sosa';
         if (!ok) return;
         try {
           await removeDoc(col, id!);
-          await loadAll();
+          clearPortfolioCache();
+          await reloadCollection(col);
         } catch (err) {
           window.alert(`Delete failed: ${(err as Error).message}`);
         }
@@ -213,7 +215,8 @@ const title = 'Admin — Miguel Sosa';
       try {
         await saveDoc(ctx.col, ctx.id, data);
         dialog.close();
-        await loadAll();
+        clearPortfolioCache();
+        await reloadCollection(ctx.col);
       } catch (err) {
         window.alert(`Save failed: ${(err as Error).message}`);
         if (submitBtn) {
@@ -256,11 +259,21 @@ const title = 'Admin — Miguel Sosa';
       .join('');
   }
 
+  async function reloadCollection(col: CollectionDef): Promise<void> {
+    const docs = await fetchCollection(col);
+    docsCache[col.name] = docs;
+    const container = view.querySelector<HTMLElement>('#collections');
+    const section = container?.querySelector<HTMLElement>(`[data-col="${col.name}"]`);
+    if (container && section) {
+      section.outerHTML = renderSection(col, docs);
+    }
+  }
+
   function renderSection(col: CollectionDef, docs: AdminDoc[]): string {
     if (col.single) {
       const data = docs[0]?.data;
       return `
-        <section class="rounded-2xl border border-line bg-surface p-6 shadow-soft">
+        <section data-col="${col.name}" class="rounded-2xl border border-line bg-surface p-6 shadow-soft">
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 class="font-display text-lg font-semibold text-ink">${col.label}</h2>
@@ -287,7 +300,7 @@ const title = 'Admin — Miguel Sosa';
       .join('');
 
     return `
-      <section class="rounded-2xl border border-line bg-surface p-6 shadow-soft">
+      <section data-col="${col.name}" class="rounded-2xl border border-line bg-surface p-6 shadow-soft">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <h2 class="font-display text-lg font-semibold text-ink">${col.label}</h2>
           <button type="button" data-add="${col.name}" class="${BTN_PRIMARY}">

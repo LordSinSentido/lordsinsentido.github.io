@@ -1,6 +1,5 @@
 ---
-import '../styles/global.css';
-import { withBase } from '../lib/text';
+import "../styles/global.css";
 
 interface Props {
   title?: string;
@@ -8,11 +7,14 @@ interface Props {
 }
 
 const {
-  title = 'Miguel Sosa — Software Engineer',
-  description = 'Portfolio of Miguel Sosa: software engineer building fast, accessible web experiences.',
+  title = "Miguel Sosa — Software Engineer",
+  description = "Software Engineer with experience in backend and frontend development, specializing in REST API servers, microservices, and Jenkins pipelines.",
 } = Astro.props;
 
-const favicon = withBase('favicon.svg');
+const siteUrl = Astro.site?.href ?? "https://LordSinSentido.github.io";
+const canonicalUrl = `${siteUrl.replace(/\/+$/, "")}${Astro.url.pathname}`;
+const ogImage = `${siteUrl.replace(/\/+$/, "")}/images/og.jpg`;
+const favicon = `${siteUrl.replace(/\/+$/, "")}/favicon.svg`;
 ---
 
 <!doctype html>
@@ -22,10 +24,23 @@ const favicon = withBase('favicon.svg');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <link rel="icon" type="image/svg+xml" href={favicon} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={title} />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={title} />
+
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -35,11 +50,11 @@ const favicon = withBase('favicon.svg');
     />
     <script is:inline>
       (function () {
-        var stored = localStorage.getItem('theme');
+        var stored = localStorage.getItem("theme");
         var dark = stored
-          ? stored === 'dark'
-          : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.classList.toggle('dark', dark);
+          ? stored === "dark"
+          : window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.classList.toggle("dark", dark);
       })();
     </script>
   </head>
@@ -47,8 +62,9 @@ const favicon = withBase('favicon.svg');
     <div
       id="scroll-progress"
       aria-hidden="true"
-      class="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left scale-x-0 bg-gradient-to-r from-accent-soft via-butter to-lavender"
-    ></div>
+      class="fixed inset-x-0 top-0 z-60 h-0.5 origin-left scale-x-0 bg-linear-to-r from-accent-soft via-butter to-lavender"
+    >
+    </div>
     <slot />
   </body>
 </html>
